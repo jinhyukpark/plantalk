@@ -4,9 +4,12 @@ set -e
 PROJECT_ROOT="${0:A:h:h}"
 ENV_FILE="$PROJECT_ROOT/.env.local"
 if [[ -f "$ENV_FILE" ]]; then
-  set -a
-  source "$ENV_FILE"
-  set +a
+  while IFS='=' read -r ENV_KEY ENV_VALUE || [[ -n "$ENV_KEY" ]]; do
+    [[ -z "$ENV_KEY" || "$ENV_KEY" == \#* ]] && continue
+    case "$ENV_KEY" in
+      EXPO_PUBLIC_*) export "$ENV_KEY=$ENV_VALUE" ;;
+    esac
+  done < "$ENV_FILE"
 fi
 export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
 export ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
