@@ -40,6 +40,12 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# Terraform local state and generated plans
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+
 app-example
 
 # local tooling and reference captures

@@ -1,0 +1,119 @@
+#!/bin/bash
+set -euo pipefail
+
+AWS_REGION="${aws_region}"
+ARTIFACT_BUCKET="${artifact_bucket}"
+PARAMETER_PATH="${parameter_path}"
+
+dnf install -y java-17-amazon-corretto-headless nginx
+
+install -d -o root -g root -m 0755 /opt/plantalk
+install -d -o root -g root -m 0750 /etc/plantalk
+
+cat >/usr/local/bin/plantalk-refresh-env <<'SCRIPT'
+#!/bin/bash
+set -euo pipefail
+
+AWS_REGION="${aws_region}"
+PARAMETER_PATH="${parameter_path}"
+ENV_FILE=/etc/plantalk/backend.env
+TMP_FILE="$(mktemp)"
+trap 'rm -f "$TMP_FILE"' EXIT
+
+KEYS=(
+  PGHOST PGPORT PGDATABASE PGUSER PGPASSWORD PGSSLMODE
+  ADMIN_USERNAME ADMIN_PASSWORD
+  SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY SUPABASE_STORAGE_BUCKET
+  MAIL_HOST MAIL_PORT MAIL_USERNAME MAIL_PASSWORD MAIL_FROM
+  MAIL_SMTP_AUTH MAIL_STARTTLS
+)
+
+escape_systemd_value() {
+  local value="$1"
+  value="$${value//\\/\\\\}"
+  value="$${value//\"/\\\"}"
+  printf '%s' "$value"
+}
+
+for key in "$${KEYS[@]}"; do
+  value="$(aws ssm get-parameter \
+    --region "$AWS_REGION" \
+    --name "$PARAMETER_PATH/$key" \
+    --with-decryption \
+    --query 'Parameter.Value' \
+    --output text)"
+  printf '%s="%s"\n' "$key" "$(escape_systemd_value "$value")" >>"$TMP_FILE"
+done
+
+install -o root -g root -m 0600 "$TMP_FILE" "$ENV_FILE"
+SCRIPT
+chmod 0750 /usr/local/bin/plantalk-refresh-env
+
+cat >/usr/local/bin/plantalk-fetch-artifact <<'SCRIPT'
+#!/bin/bash
+set -euo pipefail
+aws s3 cp \
+  "s3://${artifact_bucket}/backend/plantalk-backend.jar" \
+  /opt/plantalk/plantalk-backend.jar \
+  --region "${aws_region}"
+chown root:root /opt/plantalk/plantalk-backend.jar
+chmod 0644 /opt/plantalk/plantalk-backend.jar
+SCRIPT
+chmod 0750 /usr/local/bin/plantalk-fetch-artifact
+
+cat >/etc/systemd/system/plantalk-backend.service <<'UNIT'
+[Unit]
+Description=PlanTalk Spring Boot backend
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=nobody
+Group=nobody
+EnvironmentFile=/etc/plantalk/backend.env
+ExecStart=/usr/bin/java -XX:MaxRAMPercentage=70 -Dspring.profiles.active=prod -jar /opt/plantalk/plantalk-backend.jar --server.address=127.0.0.1 --server.port=5000
+Restart=always
+RestartSec=5
+TimeoutStopSec=30
+SuccessExitStatus=143
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/tmp
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+
+cat >/etc/nginx/conf.d/plantalk.conf <<'NGINX'
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+
+    client_max_body_size 7m;
+
+    location / {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_connect_timeout 10s;
+        proxy_read_timeout 120s;
+    }
+}
+NGINX
+
+rm -f /etc/nginx/conf.d/default.conf
+/usr/local/bin/plantalk-refresh-env
+/usr/local/bin/plantalk-fetch-artifact
+
+systemctl daemon-reload
+systemctl enable --now plantalk-backend
+systemctl enable --now nginx
