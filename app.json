@@ -1,0 +1,106 @@
+{
+  "expo": {
+    "name": "PlanTalk",
+    "slug": "plantalk-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "plantalk",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "bundleIdentifier": "com.teragraph.plantalk",
+      "supportsTablet": true,
+      "userInterfaceStyle": "light",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSCameraUsageDescription": "프로필 사진 촬영을 위해 카메라 접근 권한이 필요합니다.",
+        "NSPhotoLibraryUsageDescription": "프로필 사진 업로드를 위해 사진 라이브러리 접근 권한이 필요합니다.",
+        "NSLocationWhenInUseUsageDescription": "주변 공개방을 찾기 위해 위치 접근 권한이 필요합니다.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "softwareKeyboardLayoutMode": "resize",
+      "userInterfaceStyle": "light",
+      "package": "com.teragraph.plantalk",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
+    },
+    "androidStatusBar": {
+      "barStyle": "dark-content",
+      "backgroundColor": "#F8F6FF"
+    },
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-people-picnic.png",
+          "imageWidth": 320,
+          "resizeMode": "contain",
+          "backgroundColor": "#F8F6FF"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "주변 공개방을 찾기 위해 위치 접근 권한이 필요합니다."
+        }
+      ],
+      [
+        "expo-localization",
+        {
+          "supportedLocales": {
+            "ios": ["ko", "en", "ja"],
+            "android": ["ko", "en", "ja"]
+          }
+        }
+      ],
+      "expo-router",
+      "expo-web-browser",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "35.0.0",
+            "minSdkVersion": 24,
+            "extraProguardRules": "-keep class com.revenuecat.** { *; }"
+          }
+        }
+      ],
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-7384608336952878~2428833699",
+          "iosAppId": "ca-app-pub-3940256099942544~1458002511"
+        }
+      ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "40bd5b06-e1fe-458f-b135-f23ef4f7f57a"
+      }
+    },
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/40bd5b06-e1fe-458f-b135-f23ef4f7f57a"
+    },
+    "owner": "parkjinhyuk"
+  }
+}
