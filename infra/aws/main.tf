@@ -213,6 +213,7 @@ resource "aws_instance" "backend" {
     aws_region      = var.aws_region
     artifact_bucket = aws_s3_bucket.artifacts.id
     parameter_path  = "/plantalk/${var.environment}"
+    api_domain      = var.api_domain
   })
 
   user_data_replace_on_change = true

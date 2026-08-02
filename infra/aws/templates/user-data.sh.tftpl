@@ -5,7 +5,7 @@ AWS_REGION="${aws_region}"
 ARTIFACT_BUCKET="${artifact_bucket}"
 PARAMETER_PATH="${parameter_path}"
 
-dnf install -y java-17-amazon-corretto-headless nginx
+dnf install -y java-17-amazon-corretto-headless nginx certbot python3-certbot-nginx
 
 install -d -o root -g root -m 0755 /opt/plantalk
 install -d -o root -g root -m 0750 /etc/plantalk
@@ -91,7 +91,7 @@ cat >/etc/nginx/conf.d/plantalk.conf <<'NGINX'
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
-    server_name _;
+    server_name ${api_domain};
 
     client_max_body_size 7m;
 
@@ -117,3 +117,15 @@ rm -f /etc/nginx/conf.d/default.conf
 systemctl daemon-reload
 systemctl enable --now plantalk-backend
 systemctl enable --now nginx
+
+# Use the configured sender address for Let's Encrypt renewal notices.
+set -a
+source /etc/plantalk/backend.env
+set +a
+certbot --nginx \
+  --domain "${api_domain}" \
+  --non-interactive \
+  --agree-tos \
+  --email "$MAIL_FROM" \
+  --redirect
+systemctl enable --now certbot-renew.timer
