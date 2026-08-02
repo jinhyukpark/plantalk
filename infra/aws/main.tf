@@ -11,6 +11,11 @@ data "aws_subnets" "default" {
   }
 }
 
+data "aws_route53_zone" "public" {
+  name         = var.hosted_zone_name
+  private_zone = false
+}
+
 data "aws_ami" "amazon_linux" {
   most_recent = true
   owners      = ["amazon"]
@@ -162,9 +167,26 @@ resource "aws_security_group" "backend" {
   vpc_id      = data.aws_vpc.default.id
 
   ingress {
+    description = "SSH from trusted administrator IP"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.ssh_allowed_cidr]
+  }
+
+  ingress {
     description      = "HTTP API"
     from_port        = 80
     to_port          = 80
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  ingress {
+    description      = "HTTPS API"
+    from_port        = 443
+    to_port          = 443
     protocol         = "tcp"
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
@@ -233,4 +255,12 @@ resource "aws_eip" "backend" {
 resource "aws_eip_association" "backend" {
   allocation_id = aws_eip.backend.id
   instance_id   = aws_instance.backend.id
+}
+
+resource "aws_route53_record" "api" {
+  zone_id = data.aws_route53_zone.public.zone_id
+  name    = var.api_domain
+  type    = "A"
+  ttl     = 300
+  records = [aws_eip.backend.public_ip]
 }

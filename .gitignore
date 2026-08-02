@@ -45,6 +45,8 @@ yarn-error.*
 *.tfstate
 *.tfstate.*
 *.tfplan
+*.tfvars
+*.tfvars.json
 
 app-example
 

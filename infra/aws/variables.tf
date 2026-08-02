@@ -28,6 +28,28 @@ variable "root_volume_size" {
   default     = 30
 }
 
+variable "ssh_allowed_cidr" {
+  description = "Single trusted public IPv4 CIDR allowed to connect to EC2 over SSH."
+  type        = string
+
+  validation {
+    condition     = can(cidrhost(var.ssh_allowed_cidr, 0)) && endswith(var.ssh_allowed_cidr, "/32")
+    error_message = "ssh_allowed_cidr must be a single trusted IPv4 address expressed as a /32 CIDR."
+  }
+}
+
+variable "api_domain" {
+  description = "Public HTTPS domain for the PlanTalk API."
+  type        = string
+  default     = "api.plantalk.io"
+}
+
+variable "hosted_zone_name" {
+  description = "Route 53 public hosted zone that owns the API domain."
+  type        = string
+  default     = "plantalk.io"
+}
+
 variable "artifact_path" {
   description = "Path to the locally built Spring Boot executable JAR."
   type        = string
