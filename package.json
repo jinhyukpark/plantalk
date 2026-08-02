@@ -4,10 +4,14 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
+    "eas-build-post-install": "node ./scripts/configure-admob.js",
+    "ads:configure:development": "node ./scripts/configure-admob.js --profile=development",
+    "ads:configure:preview": "node ./scripts/configure-admob.js --profile=preview",
+    "ads:validate:production": "node ./scripts/configure-admob.js --profile=production --dry-run",
     "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo run:android",
-    "ios:dev": "./scripts/ios-dev.sh",
-    "ios": "expo run:ios",
+    "android": "npm run ads:configure:development && expo run:android",
+    "ios:dev": "npm run ads:configure:development && ./scripts/ios-dev.sh",
+    "ios": "npm run ads:configure:development && expo run:ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
     "lint": "expo lint"

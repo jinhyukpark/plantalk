@@ -12,7 +12,6 @@
       "bundleIdentifier": "com.teragraph.plantalk",
       "supportsTablet": true,
       "userInterfaceStyle": "light",
-      "buildNumber": "1",
       "infoPlist": {
         "NSCameraUsageDescription": "프로필 사진 촬영을 위해 카메라 접근 권한이 필요합니다.",
         "NSPhotoLibraryUsageDescription": "프로필 사진 업로드를 위해 사진 라이브러리 접근 권한이 필요합니다.",
@@ -68,8 +67,16 @@
         "expo-localization",
         {
           "supportedLocales": {
-            "ios": ["ko", "en", "ja"],
-            "android": ["ko", "en", "ja"]
+            "ios": [
+              "ko",
+              "en",
+              "ja"
+            ],
+            "android": [
+              "ko",
+              "en",
+              "ja"
+            ]
           }
         }
       ],
@@ -89,7 +96,7 @@
       [
         "react-native-google-mobile-ads",
         {
-          "androidAppId": "ca-app-pub-7384608336952878~2428833699",
+          "androidAppId": "ca-app-pub-3940256099942544~3347511713",
           "iosAppId": "ca-app-pub-3940256099942544~1458002511"
         }
       ]

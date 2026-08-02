@@ -5,6 +5,12 @@
   },
   "build": {
     "development": {
+      "environment": "development",
+      "env": {
+        "APP_ENV": "development",
+        "EXPO_PUBLIC_ADMOB_ANDROID_INTERSTITIAL_ID": "ca-app-pub-3940256099942544/1033173712",
+        "EXPO_PUBLIC_ADMOB_IOS_INTERSTITIAL_ID": "ca-app-pub-3940256099942544/4411468910"
+      },
       "developmentClient": true,
       "distribution": "internal",
       "android": {
@@ -17,7 +23,15 @@
     },
     "preview": {
       "environment": "preview",
+      "env": {
+        "APP_ENV": "preview",
+        "EXPO_PUBLIC_ADMOB_ANDROID_INTERSTITIAL_ID": "ca-app-pub-3940256099942544/1033173712",
+        "EXPO_PUBLIC_ADMOB_IOS_INTERSTITIAL_ID": "ca-app-pub-3940256099942544/4411468910"
+      },
       "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
       "ios": {
         "resourceClass": "m-medium"
       }
@@ -25,7 +39,8 @@
     "production": {
       "environment": "production",
       "env": {
-        "EXPO_PUBLIC_ADMOB_ANDROID_INTERSTITIAL_ID": "ca-app-pub-7384608336952878/2248870294"
+        "APP_ENV": "production",
+        "NODE_ENV": "production"
       },
       "ios": {
         "resourceClass": "m-medium"
