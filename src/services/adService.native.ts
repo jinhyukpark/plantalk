@@ -127,8 +127,8 @@ export const adService = {
    * Public-room and direct-message chats share one device-wide counter.
    * Shows an interstitial ad at a new random interval of 20–40 messages.
    */
-  async onChatMessageSent(isPremium: boolean): Promise<void> {
-    if (!adsModule || isPremium) return;
+  async onChatMessageSent(): Promise<void> {
+    if (!adsModule) return;
     try {
       if (!initialized) {
         await this.initialize();
@@ -163,8 +163,8 @@ export const adService = {
    * Counts actual friend-discovery card transitions. The count and the next
    * randomized 15–20 threshold survive navigation and app restarts.
    */
-  async onDiscoverySlide(isPremium: boolean, userId?: string): Promise<void> {
-    if (!adsModule || isPremium) return;
+  async onDiscoverySlide(userId?: string): Promise<void> {
+    if (!adsModule) return;
 
     discoveryCounterQueue = discoveryCounterQueue.then(async () => {
       try {

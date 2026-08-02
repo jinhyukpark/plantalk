@@ -1,0 +1,252 @@
+{
+  "info": {
+    "_postman_id": "3c55c174-c31c-4b37-977d-662898bac140",
+    "name": "PlanTalk API",
+    "description": "PlanTalk production API collection. Replace the collection variables with real UUIDs and test account values before running mutating requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://api.plantalk.io", "type": "string" },
+    { "key": "nickname", "value": "testuser", "type": "string" },
+    { "key": "password", "value": "test-password", "type": "string" },
+    { "key": "email", "value": "test@example.com", "type": "string" },
+    { "key": "userId", "value": "00000000-0000-0000-0000-000000000000", "type": "string" },
+    { "key": "friendId", "value": "00000000-0000-0000-0000-000000000000", "type": "string" },
+    { "key": "friendshipId", "value": "00000000-0000-0000-0000-000000000000", "type": "string" },
+    { "key": "friendRequestId", "value": "00000000-0000-0000-0000-000000000000", "type": "string" },
+    { "key": "agreementId", "value": "00000000-0000-0000-0000-000000000000", "type": "string" },
+    { "key": "roomId", "value": "00000000-0000-0000-0000-000000000000", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/actuator/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Sign Up",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nickname\": \"{{nickname}}\",\n  \"password\": \"{{password}}\",\n  \"email\": \"{{email}}\",\n  \"nationality\": \"KR\",\n  \"gender\": \"MALE\",\n  \"age\": 25\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/users"
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const body = pm.response.json();",
+                  "  if (body.id) pm.collectionVariables.set('userId', body.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nickname\": \"{{nickname}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/users/login"
+          }
+        },
+        {
+          "name": "Find ID",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\"\n}" },
+            "url": "{{baseUrl}}/api/v1/users/find-id"
+          }
+        },
+        {
+          "name": "Request Password Reset Code",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"nickname\": \"{{nickname}}\",\n  \"email\": \"{{email}}\"\n}" },
+            "url": "{{baseUrl}}/api/v1/users/password-reset/request"
+          }
+        },
+        {
+          "name": "Confirm Password Reset",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"nickname\": \"{{nickname}}\",\n  \"email\": \"{{email}}\",\n  \"code\": \"123456\",\n  \"newPassword\": \"new-password\"\n}" },
+            "url": "{{baseUrl}}/api/v1/users/password-reset/confirm"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get User",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/users/{{userId}}" }
+        },
+        {
+          "name": "Get User Profile",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/users/{{userId}}/profile" }
+        },
+        {
+          "name": "Check Nickname",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/users/check-nickname?nickname={{nickname}}" }
+        },
+        {
+          "name": "Search Users",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/users/search?q={{nickname}}" }
+        },
+        {
+          "name": "Discover Users",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/users/discover?viewerId={{userId}}&page=0&size=20&country=KR&minAge=18&maxAge=100&onlineOnly=false" }
+        },
+        {
+          "name": "Update Bio",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"bio\": \"Postman에서 변경한 자기소개입니다.\"\n}" },
+            "url": "{{baseUrl}}/api/v1/users/{{userId}}/bio"
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"currentPassword\": \"{{password}}\",\n  \"newPassword\": \"new-password\"\n}" },
+            "url": "{{baseUrl}}/api/v1/users/{{userId}}/password"
+          }
+        },
+        {
+          "name": "Heartbeat",
+          "request": { "method": "POST", "header": [], "url": "{{baseUrl}}/api/v1/users/{{userId}}/heartbeat" }
+        }
+      ]
+    },
+    {
+      "name": "Friends",
+      "item": [
+        {
+          "name": "Friend List",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/friends/{{userId}}" }
+        },
+        {
+          "name": "Friend Requests",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/friends/{{userId}}/requests" }
+        },
+        {
+          "name": "Send Friend Request",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"requesterId\": \"{{userId}}\",\n  \"addresseeId\": \"{{friendId}}\"\n}" },
+            "url": "{{baseUrl}}/api/v1/friends/requests"
+          }
+        },
+        {
+          "name": "Accept Friend Request",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"accept\": true\n}" },
+            "url": "{{baseUrl}}/api/v1/friends/requests/{{friendRequestId}}"
+          }
+        },
+        {
+          "name": "Remove Friend",
+          "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/v1/friends/{{friendshipId}}?userId={{userId}}" }
+        }
+      ]
+    },
+    {
+      "name": "Direct Messages",
+      "item": [
+        {
+          "name": "Conversation",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/direct-messages/{{userId}}/{{friendId}}?limit=100" }
+        },
+        {
+          "name": "Send Message",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"senderId\": \"{{userId}}\",\n  \"recipientId\": \"{{friendId}}\",\n  \"content\": \"Postman 테스트 메시지\"\n}" },
+            "url": "{{baseUrl}}/api/v1/direct-messages"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Agreements",
+      "item": [
+        {
+          "name": "Agreement List",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/agreements?userName={{nickname}}" }
+        },
+        {
+          "name": "Agreement Detail",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/agreements/{{agreementId}}" }
+        },
+        {
+          "name": "Create Agreement",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Postman 테스트 약속\",\n  \"description\": \"API 테스트로 생성한 약속\",\n  \"emoji\": \"☕\",\n  \"category\": \"MEETING\",\n  \"dateTime\": \"2026-08-10T14:00:00\",\n  \"scheduleType\": \"ONCE\",\n  \"creatorId\": \"{{userId}}\",\n  \"participantNames\": []\n}" },
+            "url": "{{baseUrl}}/api/v1/agreements"
+          }
+        },
+        {
+          "name": "Agreement Stats",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/agreements/stats?userName={{nickname}}" }
+        },
+        {
+          "name": "Agreement Timeline",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/agreements/{{agreementId}}/timeline" }
+        }
+      ]
+    },
+    {
+      "name": "Rooms",
+      "item": [
+        {
+          "name": "Room List",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/rooms" }
+        },
+        {
+          "name": "Room Detail",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/rooms/{{roomId}}" }
+        },
+        {
+          "name": "Room Messages",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/rooms/{{roomId}}/messages" }
+        }
+      ]
+    }
+  ]
+}

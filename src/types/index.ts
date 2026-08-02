@@ -176,36 +176,6 @@ export interface RoomMessage {
   deleted?: boolean;
 }
 
-export type SubscriptionPlan = 'WEEKLY' | 'BIWEEKLY' | 'ANNUAL';
-export type SubscriptionStatus = 'ACTIVE' | 'EXPIRED' | 'CANCELED' | 'PENDING';
-
-export interface Subscription {
-  id: string;
-  userId: string;
-  plan: SubscriptionPlan;
-  status: SubscriptionStatus;
-  priceKrw: number;
-  startedAt: string;
-  expiresAt: string;
-  platform: 'IOS' | 'ANDROID';
-  autoRenew: boolean;
-}
-
-export interface SubscriptionPlanInfo {
-  id: SubscriptionPlan;
-  name: string;
-  priceKrw: number;
-  durationDays: number;
-  description: string;
-}
-
-export interface SubscriptionStatusResponse {
-  isPremium: boolean;
-  plan: SubscriptionPlan | null;
-  expiresAt: string | null;
-  shouldShowAd: boolean;
-}
-
 export const ROOM_CATEGORIES = [
   { id: 'drinking', emoji: '🍺', label: '술 한잔' },
   { id: 'food', emoji: '🍽️', label: '맛집 탐방' },

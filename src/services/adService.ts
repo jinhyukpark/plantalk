@@ -10,8 +10,8 @@ export const adService = {
    * No-op on web — ads are only shown in the native app
    * (see adService.native.ts).
    */
-  async onChatMessageSent(_isPremium: boolean): Promise<void> {},
+  async onChatMessageSent(): Promise<void> {},
 
   /** Native-only persistent counter for friend discovery card transitions. */
-  async onDiscoverySlide(_isPremium: boolean, _userId?: string): Promise<void> {},
+  async onDiscoverySlide(_userId?: string): Promise<void> {},
 };

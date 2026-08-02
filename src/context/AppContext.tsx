@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Agreement, User, AgreementCategory, SubscriptionStatusResponse } from '../types';
+import { Agreement, User, AgreementCategory } from '../types';
 import { apiService } from '../services/api';
 import { DataStore } from '../store/dataStore';
 
@@ -21,7 +21,6 @@ interface AppContextType {
   agreements: Agreement[];
   isLoading: boolean;
   error: string | null;
-  subscriptionStatus: SubscriptionStatusResponse | null;
   avatarSettings: AvatarSettings | null;
   dailyPhotos: string[];
   unreadNotificationCount: number;
@@ -35,7 +34,6 @@ interface AppContextType {
   updateUserNationality: (nationality: 'KR' | 'JP' | 'OTHER') => Promise<void>;
   completeOnboarding: () => void;
   refreshAgreements: (forceRefresh?: boolean) => Promise<void>;
-  refreshSubscriptionStatus: () => Promise<void>;
   refreshUnreadCount: () => Promise<void>;
   updateAvatarSettings: (settings: Partial<AvatarSettings>) => Promise<void>;
   addDailyPhoto: (photoUri: string) => Promise<boolean>;
@@ -69,7 +67,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [agreements, setAgreements] = useState<Agreement[]>(DataStore.getAgreements());
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatusResponse | null>(null);
   const [avatarSettings, setAvatarSettings] = useState<AvatarSettings | null>(null);
   const [dailyPhotos, setDailyPhotos] = useState<string[]>([]);
   const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
@@ -199,16 +196,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [dailyPhotos]);
 
-  const refreshSubscriptionStatus = useCallback(async () => {
-    if (!user) return;
-    try {
-      const status = await apiService.getSubscriptionStatus(user.id);
-      setSubscriptionStatus(status);
-    } catch (err) {
-      console.error('Failed to fetch subscription status:', err);
-    }
-  }, [user]);
-
   const refreshUnreadCount = useCallback(async () => {
     if (!user) return;
     try {
@@ -298,7 +285,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setUserState(null);
     setIsOnboarded(false);
     setAgreements([]);
-    setSubscriptionStatus(null);
     setAvatarSettings(null);
     setDailyPhotos([]);
     setUnreadNotificationCount(0);
@@ -513,7 +499,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
         agreements,
         isLoading,
         error,
-        subscriptionStatus,
         avatarSettings,
         dailyPhotos,
         unreadNotificationCount,
@@ -527,7 +512,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
         updateUserNationality,
         completeOnboarding,
         refreshAgreements,
-        refreshSubscriptionStatus,
         refreshUnreadCount,
         updateAvatarSettings,
         addDailyPhoto,

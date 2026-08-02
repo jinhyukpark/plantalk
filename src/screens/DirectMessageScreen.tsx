@@ -105,7 +105,7 @@ export function DirectMessageScreen() {
       const saved = await apiService.sendDirectMessage(user.id, friend.friendId, content);
       mergeMessages([saved]);
       requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated: true }));
-      await adService.onChatMessageSent(false);
+      await adService.onChatMessageSent();
     } catch (sendError) {
       setText(content);
       Alert.alert(

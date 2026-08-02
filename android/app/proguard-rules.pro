@@ -14,5 +14,4 @@
 # Add any project specific keep options here:
 
 # @generated begin expo-build-properties - expo prebuild (DO NOT MODIFY)
--keep class com.revenuecat.** { *; }
 # @generated end expo-build-properties

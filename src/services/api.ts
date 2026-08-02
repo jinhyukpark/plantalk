@@ -1,7 +1,6 @@
 import { 
   Agreement, AgreementCategory, ParticipantStatus, User,
   Room, RoomParticipant, RoomMessage, 
-  SubscriptionPlanInfo, SubscriptionStatusResponse, Subscription,
   Notification, Friendship, DirectMessage, DiscoverUser
 } from '../types';
 
@@ -712,56 +711,6 @@ class ApiService {
   async closeRoom(roomId: string, userId: string): Promise<Room> {
     return this.request<Room>(`/rooms/${roomId}/close?userId=${userId}`, {
       method: 'POST',
-    });
-  }
-
-  async getSubscriptionPlans(): Promise<SubscriptionPlanInfo[]> {
-    return this.request<SubscriptionPlanInfo[]>('/subscriptions/plans');
-  }
-
-  async getSubscriptionStatus(userId: string): Promise<SubscriptionStatusResponse> {
-    return this.request<SubscriptionStatusResponse>(`/subscriptions/status/${userId}`);
-  }
-
-  async getUserSubscriptions(userId: string): Promise<Subscription[]> {
-    return this.request<Subscription[]>(`/subscriptions/user/${userId}`);
-  }
-
-  async purchaseSubscription(data: {
-    userId: string;
-    plan: string;
-    platform: 'IOS' | 'ANDROID';
-    productId: string;
-    transactionId: string;
-    receiptData: string;
-  }): Promise<Subscription> {
-    return this.request<Subscription>('/subscriptions/purchase', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
-
-  async cancelSubscription(subscriptionId: string, userId: string): Promise<void> {
-    await this.request<void>(`/subscriptions/${subscriptionId}/cancel?userId=${userId}`, {
-      method: 'POST',
-    });
-  }
-
-  async shouldShowAd(userId: string): Promise<boolean> {
-    const result = await this.request<{ shouldShowAd: boolean }>(`/subscriptions/should-show-ad/${userId}`);
-    return result.shouldShowAd;
-  }
-
-  async recordAdImpression(data: {
-    userId: string;
-    adType: 'VIDEO' | 'INTERSTITIAL' | 'REWARDED';
-    adUnitId?: string;
-    durationSeconds?: number;
-    completed?: boolean;
-  }): Promise<void> {
-    await this.request<void>('/subscriptions/ads/impression', {
-      method: 'POST',
-      body: JSON.stringify(data),
     });
   }
 

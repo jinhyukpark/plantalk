@@ -327,7 +327,7 @@ export function DiscoverFriendsScreen({ embedded = false }: { embedded?: boolean
 
     if (lastViewedPersonIdRef.current === personId) return;
     lastViewedPersonIdRef.current = personId;
-    void adService.onDiscoverySlide(false, user?.id);
+    void adService.onDiscoverySlide(user?.id);
   }, [currentIndex, filteredPeople, user?.id]);
 
   const relationshipFor = (personId: string): Relationship => (

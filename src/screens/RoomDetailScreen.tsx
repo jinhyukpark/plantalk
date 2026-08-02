@@ -465,7 +465,7 @@ export default function RoomDetailScreen() {
     await sendMessageInternal(text);
     setSending(false);
 
-    adService.onChatMessageSent(false);
+    adService.onChatMessageSent();
   };
 
   const handleSendAnnouncement = async () => {
