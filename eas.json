@@ -8,6 +8,7 @@
       "environment": "development",
       "env": {
         "APP_ENV": "development",
+        "EXPO_PUBLIC_API_URL": "https://api.plantalk.io",
         "EXPO_PUBLIC_ADMOB_ANDROID_INTERSTITIAL_ID": "ca-app-pub-3940256099942544/1033173712",
         "EXPO_PUBLIC_ADMOB_IOS_INTERSTITIAL_ID": "ca-app-pub-3940256099942544/4411468910"
       },
@@ -25,6 +26,7 @@
       "environment": "preview",
       "env": {
         "APP_ENV": "preview",
+        "EXPO_PUBLIC_API_URL": "https://api.plantalk.io",
         "EXPO_PUBLIC_ADMOB_ANDROID_INTERSTITIAL_ID": "ca-app-pub-3940256099942544/1033173712",
         "EXPO_PUBLIC_ADMOB_IOS_INTERSTITIAL_ID": "ca-app-pub-3940256099942544/4411468910"
       },
