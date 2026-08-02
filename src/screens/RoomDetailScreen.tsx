@@ -13,10 +13,10 @@ import {
   Modal,
   Switch,
   Keyboard,
-  Dimensions,
   Image,
   useWindowDimensions,
   KeyboardAvoidingView,
+  AppState,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -285,33 +285,66 @@ export default function RoomDetailScreen() {
       };
     }
 
+    const updateKeyboardLayout = (keyboardTop?: number, fallbackHeight = 0) => {
+      const overlap =
+        keyboardTop != null
+          ? Math.max(0, screenHeight - keyboardTop)
+          : Math.max(0, fallbackHeight);
+      setKeyboardHeight(overlap);
+      setIsKeyboardVisible(overlap > 0);
+    };
+
+    const resetKeyboardLayout = () => {
+      setIsKeyboardVisible(false);
+      setKeyboardHeight(0);
+    };
+
     const keyboardWillShow = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
       (e) => {
-        setIsKeyboardVisible(true);
-        const windowHeight = Dimensions.get('window').height;
-        const keyboardTop = e.endCoordinates?.screenY;
-        const overlap =
-          keyboardTop != null
-            ? Math.max(0, windowHeight - keyboardTop)
-            : e.endCoordinates?.height ?? 0;
-        setKeyboardHeight(overlap);
+        updateKeyboardLayout(e.endCoordinates?.screenY, e.endCoordinates?.height);
         setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
       }
     );
     const keyboardWillHide = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-      () => {
-        setIsKeyboardVisible(false);
-        setKeyboardHeight(0);
-      }
+      resetKeyboardLayout
     );
+
+    // iOS may skip keyboardWillHide while the app is being backgrounded. Keep
+    // the padding in sync with intermediate/resumed keyboard frame changes too.
+    const keyboardFrameChange = Platform.OS === 'ios'
+      ? Keyboard.addListener('keyboardWillChangeFrame', (e) => {
+          updateKeyboardLayout(e.endCoordinates?.screenY, e.endCoordinates?.height);
+        })
+      : null;
+
+    const appStateSubscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState !== 'active') {
+        Keyboard.dismiss();
+        resetKeyboardLayout();
+        return;
+      }
+
+      // Native keyboard notifications are not guaranteed during an app-state
+      // transition, so re-read the current frame after iOS becomes active.
+      requestAnimationFrame(() => {
+        const metrics = Keyboard.metrics();
+        if (!metrics) {
+          resetKeyboardLayout();
+          return;
+        }
+        updateKeyboardLayout(metrics.screenY, metrics.height);
+      });
+    });
 
     return () => {
       keyboardWillShow.remove();
       keyboardWillHide.remove();
+      keyboardFrameChange?.remove();
+      appStateSubscription.remove();
     };
-  }, []);
+  }, [screenHeight]);
 
   useEffect(() => {
     setCurrentRoomId(roomId);

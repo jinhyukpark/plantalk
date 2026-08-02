@@ -15,7 +15,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
@@ -31,8 +31,6 @@ import {
   BorderRadius,
   FontWeights,
   Shadows,
-  TAB_BAR_HEIGHT,
-  getSafeBottomPadding,
 } from '../constants/theme';
 import { useLanguage } from '../context/LanguageContext';
 import { NATIONALITIES } from '../i18n/translations';
@@ -62,8 +60,10 @@ const PHOTOS_DIR = (FileSystem.documentDirectory || '') + 'photos/';
 
 export function ProfileScreen() {
   const navigation = useNavigation<any>();
-  const insets = useSafeAreaInsets();
-  const bottomPadding = getSafeBottomPadding(insets.bottom, TAB_BAR_HEIGHT + Spacing.lg);
+  // MainTabs already reserves both the tab bar and Android system-navigation
+  // inset. Adding those values again here leaves a blank overlay above the
+  // menu and can hide the final profile cards.
+  const bottomPadding = Spacing.lg;
   const { 
     user, 
     agreements, 
@@ -506,7 +506,7 @@ export function ProfileScreen() {
   const isPhotoAvatar = avatarSettings?.type === 'photo' && displayPhotoUri;
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <ScrollView
         contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}
         showsVerticalScrollIndicator={false}
@@ -1268,12 +1268,6 @@ export function ProfileScreen() {
           </View>
         </View>
       </Modal>
-      {insets.bottom > 0 && (
-        <View
-          pointerEvents="none"
-          style={[styles.androidNavigationGuard, { height: insets.bottom }]}
-        />
-      )}
     </SafeAreaView>
   );
 }
@@ -1281,13 +1275,6 @@ export function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
-  },
-  androidNavigationGuard: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
     backgroundColor: Colors.background,
   },
   content: {

@@ -6,7 +6,6 @@ import {
   Image,
   Modal,
   PanResponder,
-  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -28,7 +27,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { apiService } from '../services/api';
 import { adService } from '../services/adService';
 import { DiscoverUser, Friendship } from '../types';
-import { Colors, Spacing, getSafeBottomPadding } from '../constants/theme';
+import { Colors, getSafeBottomPadding } from '../constants/theme';
 import { ProfilePopup } from '../components/ProfilePopup';
 
 type Relationship = 'FRIEND' | 'REQUESTED' | 'AVAILABLE';
@@ -164,7 +163,6 @@ export function DiscoverFriendsScreen({ embedded = false }: { embedded?: boolean
   const [friends, setFriends] = useState<Friendship[]>([]);
   const [requests, setRequests] = useState<Friendship[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [discoveryPage, setDiscoveryPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
@@ -244,10 +242,9 @@ export function DiscoverFriendsScreen({ embedded = false }: { embedded?: boolean
     ? Math.max(500, Math.min(680, height - insets.top - insets.bottom - 155))
     : Math.max(500, Math.min(700, height - insets.top - insets.bottom - 170));
 
-  const load = useCallback(async (refresh = false) => {
+  const load = useCallback(async () => {
     if (!user || !filtersHydrated) return;
-    if (refresh) setRefreshing(true);
-    else setLoading(true);
+    setLoading(true);
     try {
       const [discovered, friendData, requestData] = await Promise.all([
         apiService.discoverUsers(user.id, 0, DISCOVERY_PAGE_SIZE, discoveryFilters),
@@ -267,7 +264,6 @@ export function DiscoverFriendsScreen({ embedded = false }: { embedded?: boolean
       );
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
   }, [discoveryFilters, filtersHydrated, t, user]);
 
@@ -353,7 +349,7 @@ export function DiscoverFriendsScreen({ embedded = false }: { embedded?: boolean
         ? error.message.replace(/^API Error: \d+ - /, '')
         : '';
       if (/이미 친구 요청|이미 친구|already.*(?:request|friend)/i.test(message)) {
-        await load(true);
+        await load();
         return;
       }
       Alert.alert(
@@ -665,10 +661,14 @@ export function DiscoverFriendsScreen({ embedded = false }: { embedded?: boolean
             ref={listRef}
             data={filteredPeople}
             horizontal
-            pagingEnabled
             snapToInterval={cardWidth + 12}
+            snapToAlignment="start"
             decelerationRate="fast"
             disableIntervalMomentum
+            directionalLockEnabled
+            bounces={false}
+            alwaysBounceVertical={false}
+            overScrollMode="never"
             keyExtractor={(item) => item.id}
             renderItem={renderPerson}
             showsHorizontalScrollIndicator={false}
@@ -683,9 +683,6 @@ export function DiscoverFriendsScreen({ embedded = false }: { embedded?: boolean
                 <ActivityIndicator size="large" color={Colors.primary} />
               </View>
             ) : null}
-            refreshControl={(
-              <RefreshControl refreshing={refreshing} onRefresh={() => void load(true)} tintColor={Colors.primary} />
-            )}
             getItemLayout={(_, index) => ({
               length: cardWidth + 12,
               offset: (cardWidth + 12) * index,
@@ -782,7 +779,7 @@ export function DiscoverFriendsScreen({ embedded = false }: { embedded?: boolean
         visible={selectedNickname !== null}
         nickname={selectedNickname}
         onClose={() => setSelectedNickname(null)}
-        onFriendshipChanged={() => void load(true)}
+        onFriendshipChanged={() => void load()}
       />
     </SafeAreaView>
   );
